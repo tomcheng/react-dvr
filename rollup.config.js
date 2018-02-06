@@ -17,7 +17,7 @@ const config = {
       include: "node_modules/**"
     })
   ],
-  external: ["react", "react-dom", "prop-types"]
+  external: ["react", "react-dom", "prop-types", "styled-components"]
 };
 
 export default config;

@@ -11,7 +11,9 @@ const umdConfig = Object.assign({}, config, {
   }),
   globals: {
     react: "React",
-    "prop-types": "PropTypes"
+    "prop-types": "PropTypes",
+    "styled-components": "styled",
+    "react-dom": "ReactDOM"
   }
 });
 
