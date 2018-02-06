@@ -71,8 +71,6 @@ function (_React$Component) {
 
       var name = _this.state.name.trim();
 
-      console.log("on submit");
-
       if (name === "") {
         _this.setState({
           error: "Name is required"
@@ -231,7 +229,6 @@ function (_React$Component) {
 
 ReactDvrUi.propTypes = {
   isShowing: PropTypes.bool.isRequired,
-  isOverriding: PropTypes.bool.isRequired,
   states: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
     props: PropTypes.object.isRequired
@@ -315,7 +312,6 @@ var reactDvr = function reactDvr(options) {
 
             var _this$getLocalStorage = _this.getLocalStorageState(),
                 isShowingUI = _this$getLocalStorage.isShowingUI,
-                isOverriding = _this$getLocalStorage.isOverriding,
                 states = _this$getLocalStorage.states,
                 activeState = _this$getLocalStorage.activeState;
 
@@ -326,7 +322,6 @@ var reactDvr = function reactDvr(options) {
 
             ReactDOM.render(React.createElement(ReactDvrUi, {
               isShowing: isShowingUI,
-              isOverriding: isOverriding,
               activeState: activeState,
               states: states,
               onSetActiveState: _this.handleSetActiveState,
