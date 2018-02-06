@@ -14,9 +14,7 @@
     "build:umd:prod": "cross-env BABEL_ENV=es NODE_ENV=production rollup -c rollup.umd.config.js -i src/index.js -o dist/react-dvr.min.js",
     "build:umd:dev": "cross-env BABEL_ENV=es NODE_ENV=development rollup -c rollup.umd.config.js -i src/index.js -o dist/react-dvr.js",
     "example:build": "cross-env BABEL_ENV=es NODE_ENV=development rollup -c example/rollup.config.js -i example/index.js -o example/bundle.js",
-    "clean": "rimraf es && rimraf lib && rimraf dist",
-    "start": "react-scripts start",
-    "test": "react-scripts test --env=jsdom"
+    "clean": "rimraf es && rimraf lib && rimraf dist"
   },
   "peerDependencies": {
     "react": ">= 15.0.0 <17.0.0",
@@ -37,7 +35,6 @@
     "npm-run-all": "4.1.2",
     "react": "16.2.0",
     "react-dom": "16.2.0",
-    "react-scripts": "1.1.0",
     "rimraf": "2.6.2",
     "rollup": "0.55.3",
     "rollup-plugin-babel": "4.0.0-beta.0",
