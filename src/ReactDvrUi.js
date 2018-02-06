@@ -59,7 +59,6 @@ const Close = styled.div`
 class ReactDvrUi extends React.Component {
   static propTypes = {
     isShowing: PropTypes.bool.isRequired,
-    isOverriding: PropTypes.bool.isRequired,
     states: PropTypes.arrayOf(
       PropTypes.shape({
         name: PropTypes.string.isRequired,

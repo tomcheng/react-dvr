@@ -86,7 +86,6 @@ const reactDvr = options => Target =>
 
       const {
         isShowingUI,
-        isOverriding,
         states,
         activeState
       } = this.getLocalStorageState();
@@ -99,7 +98,6 @@ const reactDvr = options => Target =>
       ReactDOM.render(
         <ReactDvrUi
           isShowing={isShowingUI}
-          isOverriding={isOverriding}
           activeState={activeState}
           states={states}
           onSetActiveState={this.handleSetActiveState}
