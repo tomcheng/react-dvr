@@ -1,5 +1,32 @@
 import React from "react";
 import PropTypes from "prop-types";
+import styled from "styled-components";
+
+const StyledInput = styled.input`
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #000;
+  padding: 0 5px;
+  line-height: 24px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const SaveButton = styled.button`
+  order: 2;
+  margin-left: 5px;
+`;
+
+const CancelButton = styled.button`
+  order: 1;
+`;
 
 class AddStateForm extends React.Component {
   static propTypes = {
@@ -38,16 +65,19 @@ class AddStateForm extends React.Component {
 
     return (
       <form onSubmit={this.handleSubmit}>
-        <input
+        <StyledInput
           type="text"
           name="name"
           placeholder="Name this State"
           value={name}
           onChange={this.handleChange}
+          autoFocus
         />
         {error && <div>{error}</div>}
-        <button>Save Props</button>
-        <button onClick={onCancel}>Cancel</button>
+        <Actions>
+          <SaveButton>Save State</SaveButton>
+          <CancelButton onClick={onCancel}>Cancel</CancelButton>
+        </Actions>
       </form>
     );
   }

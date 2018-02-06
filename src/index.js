@@ -4,7 +4,13 @@ import ReactDvrUi from "./ReactDvrUi";
 
 const defaultOptions = {
   toggleKeyCode: "Backquote",
-  localStorageKey: "__react-dvr-props__"
+  localStorageKey: "__react-dvr__"
+};
+
+const defaultState = {
+  activeState: null,
+  states: [],
+  showUI: true
 };
 
 const reactDvr = options => Target =>
@@ -29,7 +35,7 @@ const reactDvr = options => Target =>
       if (event.code === this.options.toggleKeyCode) {
         this.setLocalStorageState(state => ({
           ...state,
-          isShowingUI: !state.isShowingUI
+          showUI: !state.showUI
         }));
       }
     };
@@ -60,7 +66,7 @@ const reactDvr = options => Target =>
     getLocalStorageState = () => {
       const json = localStorage.getItem(this.options.localStorageKey);
       const localStorageState = json ? JSON.parse(json) : {};
-      return { states: [], ...localStorageState };
+      return { ...defaultState, ...localStorageState };
     };
 
     setLocalStorageState = updates => {
@@ -85,7 +91,7 @@ const reactDvr = options => Target =>
       }
 
       const {
-        isShowingUI,
+        showUI,
         states,
         activeState
       } = this.getLocalStorageState();
@@ -97,7 +103,7 @@ const reactDvr = options => Target =>
 
       ReactDOM.render(
         <ReactDvrUi
-          isShowing={isShowingUI}
+          isShowing={showUI}
           activeState={activeState}
           states={states}
           onSetActiveState={this.handleSetActiveState}

@@ -28,7 +28,7 @@ const Title = styled.div`
 `;
 
 const StatesContainer = styled.div`
-  margin: 0 -5px 5px;
+  margin: 0 -5px 10px;
 `;
 
 const StateRow = styled.div`
@@ -53,6 +53,19 @@ const Close = styled.div`
     &:hover {
       opacity: 1;
     }
+  }
+`;
+
+const GhostedButton = styled.div`
+  display: block;
+  text-align: center;
+  border: 1px dashed #fff;
+  border-radius: 4px;
+  cursor: ${props => (props.disabled ? "default" : "pointer")};
+  opacity: ${props => (props.disabled ? 0.2 : 0.6)};
+
+  &:hover {
+    opacity: ${props => (props.disabled ? 0.2 : 1)};
   }
 `;
 
@@ -152,9 +165,9 @@ class ReactDvrUi extends React.Component {
             onCancel={this.handleClickCancelAdd}
           />
         ) : (
-          <button onClick={this.handleClickAdd} disabled={!!activeState}>
+          <GhostedButton onClick={this.handleClickAdd} disabled={!!activeState}>
             Add State
-          </button>
+          </GhostedButton>
         )}
       </Container>
     );
