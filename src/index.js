@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import sortBy from "lodash/sortBy";
 import ReactDvrUi from "./ReactDvrUi";
 
 const defaultOptions = {
@@ -47,7 +48,10 @@ const reactDvr = options => Target =>
 
       this.setLocalStorageState(state => ({
         ...state,
-        states: (state.states || []).concat([{ name, props: this.props }])
+        states: sortBy(
+          (state.states || []).concat([{ name, props: this.props }]),
+          [({ name }) => name.toLowerCase()]
+        )
       }));
     };
 
@@ -90,11 +94,7 @@ const reactDvr = options => Target =>
         return;
       }
 
-      const {
-        showUI,
-        states,
-        activeState
-      } = this.getLocalStorageState();
+      const { showUI, states, activeState } = this.getLocalStorageState();
 
       if (!this.overlayTarget) {
         this.overlayTarget = document.createElement("div");
