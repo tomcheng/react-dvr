@@ -42,10 +42,6 @@ const reactDvr = options => Target =>
     };
 
     handleAddState = name => {
-      if (!name) {
-        return;
-      }
-
       this.setLocalStorageState(state => ({
         ...state,
         states: sortBy(
@@ -53,6 +49,21 @@ const reactDvr = options => Target =>
           [({ name }) => name.toLowerCase()]
         )
       }));
+    };
+
+    handleEditStateName = ({ name, previousName }) => {
+      this.setLocalStorageState(state => {
+        const newStates = state.states.map(
+          s => (s.name === previousName ? { ...s, name } : s)
+        );
+
+        return {
+          ...state,
+          activeState:
+            state.activeState === previousName ? name : state.activeState,
+          states: sortBy(newStates, [({ name }) => name.toLowerCase()])
+        };
+      });
     };
 
     handleRemoveState = name => {
@@ -108,6 +119,7 @@ const reactDvr = options => Target =>
           states={states}
           onSetActiveState={this.handleSetActiveState}
           onAddState={this.handleAddState}
+          onEditStateName={this.handleEditStateName}
           onRemoveState={this.handleRemoveState}
         />,
         this.overlayTarget

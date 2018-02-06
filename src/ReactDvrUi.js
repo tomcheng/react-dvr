@@ -1,6 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
+import Icon from "@fortawesome/react-fontawesome";
+import faTrashAlt from "@fortawesome/fontawesome-free-regular/faTrashAlt";
+import faEdit from "@fortawesome/fontawesome-free-regular/faEdit";
 import AddStateForm from "./AddStateForm";
 
 const Container = styled.div`
@@ -44,9 +47,17 @@ const StateLabel = styled.label`
   flex-grow: 1;
 `;
 
-const Close = styled.div`
+const Actions = styled.div`
+  display: flex;
+`;
+
+const Action = styled.div`
   opacity: 0;
   cursor: pointer;
+
+  & + & {
+    margin-left: 5px;
+  }
 
   .rdvr-state-row:hover & {
     opacity: 0.5;
@@ -79,12 +90,13 @@ class ReactDvrUi extends React.Component {
       })
     ).isRequired,
     onAddState: PropTypes.func.isRequired,
+    onEditStateName: PropTypes.func.isRequired,
     onRemoveState: PropTypes.func.isRequired,
     onSetActiveState: PropTypes.func.isRequired,
     activeState: PropTypes.string
   };
 
-  state = { isAdding: false };
+  state = { isAdding: false, editingState: null };
 
   handleClickAdd = () => {
     this.setState({ isAdding: true });
@@ -95,14 +107,39 @@ class ReactDvrUi extends React.Component {
   };
 
   handleAddState = ({ name, onError }) => {
-    const { states } = this.props;
+    const { states, onAddState } = this.props;
 
     if (states.some(s => s.name === name)) {
       onError({ message: "Name is already used" });
       return;
     }
 
-    this.props.onAddState(name);
+    onAddState(name);
+    this.setState({ isAdding: false });
+  };
+
+  handleClickEdit = name => {
+    this.setState({ editingState: name });
+  };
+
+  handleCancelEdit = () => {
+    this.setState({ editingState: null });
+  };
+
+  handleEditName = ({ name, previousName, onError }) => {
+    const { states, onEditStateName } = this.props;
+    
+    if (states.some(s => s.name === name)) {
+      onError({ message: "Name is already used" });
+      return;
+    }
+    
+    onEditStateName({ name, previousName });
+    this.setState({ editingState: null });
+  };
+
+  setActive = name => {
+    this.props.onSetActiveState(name);
     this.setState({ isAdding: false });
   };
 
@@ -114,7 +151,7 @@ class ReactDvrUi extends React.Component {
       onSetActiveState,
       onRemoveState
     } = this.props;
-    const { isAdding } = this.state;
+    const { isAdding, editingState } = this.state;
 
     if (!isShowing) {
       return <noscript />;
@@ -136,29 +173,49 @@ class ReactDvrUi extends React.Component {
               Don't use saved state
             </StateLabel>
           </StateRow>
-          {states.map(({ name }) => (
-            <StateRow key={name} className="rdvr-state-row">
-              <StateLabel>
-                <input
-                  type="radio"
-                  checked={activeState === name}
-                  onChange={() => {
-                    onSetActiveState(name);
+          {states.map(
+            ({ name }) =>
+              editingState === name ? (
+                <AddStateForm
+                  key={name}
+                  initialName={name}
+                  onCancel={this.handleCancelEdit}
+                  onSubmit={arg => {
+                    this.handleEditName({ ...arg, previousName: name });
                   }}
-                />{" "}
-                {name}{" "}
-              </StateLabel>
-              <Close
-                onClick={() => {
-                  onRemoveState(name);
-                }}
-              >
-                &times;
-              </Close>
-            </StateRow>
-          ))}
+                />
+              ) : (
+                <StateRow key={name} className="rdvr-state-row">
+                  <StateLabel>
+                    <input
+                      type="radio"
+                      checked={activeState === name}
+                      onChange={() => {
+                        this.setActive(name);
+                      }}
+                    />{" "}
+                    {name}{" "}
+                  </StateLabel>
+                  <Actions>
+                    <Action
+                      onClick={() => {
+                        this.handleClickEdit(name);
+                      }}
+                    >
+                      <Icon icon={faEdit} />
+                    </Action>
+                    <Action
+                      onClick={() => {
+                        onRemoveState(name);
+                      }}
+                    >
+                      <Icon icon={faTrashAlt} />
+                    </Action>
+                  </Actions>
+                </StateRow>
+              )
+          )}
         </StatesContainer>
-
         {isAdding ? (
           <AddStateForm
             onSubmit={this.handleAddState}

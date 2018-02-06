@@ -31,10 +31,15 @@ const CancelButton = styled.button`
 class AddStateForm extends React.Component {
   static propTypes = {
     onCancel: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired
+    onSubmit: PropTypes.func.isRequired,
+    initialName: PropTypes.string
   };
 
-  state = { name: "", error: null };
+  constructor(props) {
+    super();
+
+    this.state = { name: props.initialName || "", error: null };
+  }
 
   handleChange = event => {
     this.setState({ [event.target.name]: event.target.value });
