@@ -1,6 +1,6 @@
 # react-dvr
 
-A higher order component that saves and loads props for easier development.
+A higher order component that saves and loads props to local storage for easier development.
 
 ## Usage
 ```javascript
