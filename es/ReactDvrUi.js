@@ -7,7 +7,9 @@ var _templateObject = _taggedTemplateLiteralLoose(["\n  position: fixed;\n  bott
     _templateObject5 = _taggedTemplateLiteralLoose(["\n  flex-grow: 1;\n"], ["\n  flex-grow: 1;\n"]),
     _templateObject6 = _taggedTemplateLiteralLoose(["\n  display: flex;\n"], ["\n  display: flex;\n"]),
     _templateObject7 = _taggedTemplateLiteralLoose(["\n  opacity: 0;\n  cursor: pointer;\n\n  & + & {\n    margin-left: 5px;\n  }\n\n  .rdvr-state-row:hover & {\n    opacity: 0.5;\n    &:hover {\n      opacity: 1;\n    }\n  }\n"], ["\n  opacity: 0;\n  cursor: pointer;\n\n  & + & {\n    margin-left: 5px;\n  }\n\n  .rdvr-state-row:hover & {\n    opacity: 0.5;\n    &:hover {\n      opacity: 1;\n    }\n  }\n"]),
-    _templateObject8 = _taggedTemplateLiteralLoose(["\n  display: block;\n  text-align: center;\n  border: 1px dashed #fff;\n  border-radius: 4px;\n  cursor: ", ";\n  opacity: ", ";\n\n  &:hover {\n    opacity: ", ";\n  }\n"], ["\n  display: block;\n  text-align: center;\n  border: 1px dashed #fff;\n  border-radius: 4px;\n  cursor: ", ";\n  opacity: ", ";\n\n  &:hover {\n    opacity: ", ";\n  }\n"]);
+    _templateObject8 = _taggedTemplateLiteralLoose(["\n  padding-left: 8px;\n  &:hover {\n    background-color: rgba(255, 255, 255, 0.1);\n  }\n"], ["\n  padding-left: 8px;\n  &:hover {\n    background-color: rgba(255, 255, 255, 0.1);\n  }\n"]),
+    _templateObject9 = _taggedTemplateLiteralLoose(["\n  padding-left: 20px;\n"], ["\n  padding-left: 20px;\n"]),
+    _templateObject10 = _taggedTemplateLiteralLoose(["\n  display: block;\n  text-align: center;\n  border: 1px dashed #fff;\n  border-radius: 4px;\n  cursor: ", ";\n  opacity: ", ";\n\n  &:hover {\n    opacity: ", ";\n  }\n"], ["\n  display: block;\n  text-align: center;\n  border: 1px dashed #fff;\n  border-radius: 4px;\n  cursor: ", ";\n  opacity: ", ";\n\n  &:hover {\n    opacity: ", ";\n  }\n"]);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -23,7 +25,38 @@ import styled from "styled-components";
 import Icon from "@fortawesome/react-fontawesome";
 import faTrashAlt from "@fortawesome/fontawesome-free-regular/faTrashAlt";
 import faEdit from "@fortawesome/fontawesome-free-regular/faEdit";
+import faPlusSquare from "@fortawesome/fontawesome-free-regular/faPlusSquare";
+import faMinusSquare from "@fortawesome/fontawesome-free-regular/faMinusSquare";
 import AddStateForm from "./AddStateForm";
+
+var groupStatesByFolder = function groupStatesByFolder(states) {
+  return states.filter(function (state) {
+    return state.name.indexOf("/") > -1;
+  }).reduce(function (folders, state) {
+    var folderName = state.name.split("/")[0];
+    var displayName = state.name.split("/")[1];
+    var existingFolder = folders.find(function (folder) {
+      return folder.name === folderName;
+    });
+
+    if (existingFolder) {
+      existingFolder.states.push(_extends({}, state, { displayName: displayName }));
+    } else {
+      folders.push({
+        name: folderName,
+        states: [_extends({}, state, { displayName: displayName })]
+      });
+    }
+
+    return folders;
+  }, []);
+};
+
+var getStatesOutsideFolders = function getStatesOutsideFolders(states) {
+  return states.filter(function (state) {
+    return state.name.indexOf("/") === -1;
+  });
+};
 
 var Container = styled.div(_templateObject);
 
@@ -39,7 +72,11 @@ var Actions = styled.div(_templateObject6);
 
 var Action = styled.div(_templateObject7);
 
-var GhostedButton = styled.div(_templateObject8, function (props) {
+var FolderName = styled.div(_templateObject8);
+
+var FolderStates = styled.div(_templateObject9);
+
+var GhostedButton = styled.div(_templateObject10, function (props) {
   return props.disabled ? "default" : "pointer";
 }, function (props) {
   return props.disabled ? 0.2 : 0.6;
@@ -105,22 +142,106 @@ var ReactDvrUi = function (_React$Component) {
     }, _this.setActive = function (name) {
       _this.props.onSetActiveState(name);
       _this.setState({ isAdding: false });
+    }, _this.renderState = function (_ref3) {
+      var name = _ref3.name,
+          displayName = _ref3.displayName;
+      var _this$props3 = _this.props,
+          onRemoveState = _this$props3.onRemoveState,
+          activeState = _this$props3.activeState;
+      var editingState = _this.state.editingState;
+
+
+      if (editingState === name) {
+        return React.createElement(AddStateForm, {
+          key: name,
+          initialName: name,
+          onCancel: _this.handleCancelEdit,
+          onSubmit: function onSubmit(arg) {
+            _this.handleEditName(_extends({}, arg, { previousName: name }));
+          }
+        });
+      }
+
+      return React.createElement(
+        StateRow,
+        { key: name, className: "rdvr-state-row" },
+        React.createElement(
+          StateLabel,
+          null,
+          React.createElement("input", {
+            type: "radio",
+            checked: activeState === name,
+            onChange: function onChange() {
+              _this.setActive(name);
+            }
+          }),
+          " ",
+          displayName || name,
+          " "
+        ),
+        React.createElement(
+          Actions,
+          null,
+          React.createElement(
+            Action,
+            {
+              onClick: function onClick() {
+                _this.handleClickEdit(name);
+              }
+            },
+            React.createElement(Icon, { icon: faEdit })
+          ),
+          React.createElement(
+            Action,
+            {
+              onClick: function onClick() {
+                onRemoveState(name);
+              }
+            },
+            React.createElement(Icon, { icon: faTrashAlt })
+          )
+        )
+      );
+    }, _this.renderFolder = function (_ref4) {
+      var name = _ref4.name,
+          states = _ref4.states;
+      var _this$props4 = _this.props,
+          minimizedFolders = _this$props4.minimizedFolders,
+          onToggleFolder = _this$props4.onToggleFolder;
+
+      var isMinimized = minimizedFolders.includes(name);
+
+      return React.createElement(
+        React.Fragment,
+        { key: name },
+        React.createElement(
+          FolderName,
+          { onClick: function onClick() {
+              return onToggleFolder(name);
+            } },
+          React.createElement(Icon, { icon: isMinimized ? faPlusSquare : faMinusSquare }),
+          "\xA0\xA0",
+          name
+        ),
+        !isMinimized && React.createElement(
+          FolderStates,
+          null,
+          states.map(_this.renderState)
+        )
+      );
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   ReactDvrUi.prototype.render = function render() {
-    var _this2 = this;
-
     var _props = this.props,
         isShowing = _props.isShowing,
         activeState = _props.activeState,
         states = _props.states,
-        onSetActiveState = _props.onSetActiveState,
-        onRemoveState = _props.onRemoveState;
-    var _state = this.state,
-        isAdding = _state.isAdding,
-        editingState = _state.editingState;
+        onSetActiveState = _props.onSetActiveState;
+    var isAdding = this.state.isAdding;
 
+    var folders = groupStatesByFolder(states);
+    var statesOutsideFolders = getStatesOutsideFolders(states);
 
     if (!isShowing) {
       return React.createElement("noscript", null);
@@ -151,59 +272,11 @@ var ReactDvrUi = function (_React$Component) {
               }
             }),
             " ",
-            "Don't use saved state"
+            "No state applied"
           )
         ),
-        states.map(function (_ref3) {
-          var name = _ref3.name;
-          return editingState === name ? React.createElement(AddStateForm, {
-            key: name,
-            initialName: name,
-            onCancel: _this2.handleCancelEdit,
-            onSubmit: function onSubmit(arg) {
-              _this2.handleEditName(_extends({}, arg, { previousName: name }));
-            }
-          }) : React.createElement(
-            StateRow,
-            { key: name, className: "rdvr-state-row" },
-            React.createElement(
-              StateLabel,
-              null,
-              React.createElement("input", {
-                type: "radio",
-                checked: activeState === name,
-                onChange: function onChange() {
-                  _this2.setActive(name);
-                }
-              }),
-              " ",
-              name,
-              " "
-            ),
-            React.createElement(
-              Actions,
-              null,
-              React.createElement(
-                Action,
-                {
-                  onClick: function onClick() {
-                    _this2.handleClickEdit(name);
-                  }
-                },
-                React.createElement(Icon, { icon: faEdit })
-              ),
-              React.createElement(
-                Action,
-                {
-                  onClick: function onClick() {
-                    onRemoveState(name);
-                  }
-                },
-                React.createElement(Icon, { icon: faTrashAlt })
-              )
-            )
-          );
-        })
+        folders.map(this.renderFolder),
+        statesOutsideFolders.map(this.renderState)
       ),
       isAdding ? React.createElement(AddStateForm, {
         onSubmit: this.handleAddState,
@@ -221,6 +294,7 @@ var ReactDvrUi = function (_React$Component) {
 
 ReactDvrUi.propTypes = process.env.NODE_ENV !== "production" ? {
   isShowing: PropTypes.bool.isRequired,
+  minimizedFolders: PropTypes.arrayOf(PropTypes.string).isRequired,
   states: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
     props: PropTypes.object.isRequired
@@ -229,6 +303,7 @@ ReactDvrUi.propTypes = process.env.NODE_ENV !== "production" ? {
   onEditStateName: PropTypes.func.isRequired,
   onRemoveState: PropTypes.func.isRequired,
   onSetActiveState: PropTypes.func.isRequired,
+  onToggleFolder: PropTypes.func.isRequired,
   activeState: PropTypes.string
 } : {};
 

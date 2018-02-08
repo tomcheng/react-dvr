@@ -11,7 +11,8 @@ const defaultOptions = {
 const defaultState = {
   activeState: null,
   states: [],
-  showUI: true
+  showUI: true,
+  minimizedFolders: []
 };
 
 const reactDvr = options => Target =>
@@ -78,6 +79,19 @@ const reactDvr = options => Target =>
       this.setLocalStorageState({ activeState: name });
     };
 
+    handleToggleFolder = name => {
+      this.setLocalStorageState(state => {
+        const isMinimized = state.minimizedFolders.includes(name);
+
+        return {
+          ...state,
+          minimizedFolders: isMinimized
+            ? state.minimizedFolders.filter(n => n !== name)
+            : state.minimizedFolders.concat(name)
+        };
+      });
+    };
+
     getLocalStorageState = () => {
       const json = localStorage.getItem(this.options.localStorageKey);
       const localStorageState = json ? JSON.parse(json) : {};
@@ -86,7 +100,10 @@ const reactDvr = options => Target =>
 
     setLocalStorageState = updates => {
       const json = localStorage.getItem(this.options.localStorageKey);
-      const currentState = json ? JSON.parse(json) : {};
+      const currentState = {
+        ...defaultState,
+        ...(json ? JSON.parse(json) : {})
+      };
       const newState =
         typeof updates === "function"
           ? updates(currentState)
@@ -105,7 +122,12 @@ const reactDvr = options => Target =>
         return;
       }
 
-      const { showUI, states, activeState } = this.getLocalStorageState();
+      const {
+        showUI,
+        states,
+        activeState,
+        minimizedFolders
+      } = this.getLocalStorageState();
 
       if (!this.overlayTarget) {
         this.overlayTarget = document.createElement("div");
@@ -117,10 +139,12 @@ const reactDvr = options => Target =>
           isShowing={showUI}
           activeState={activeState}
           states={states}
+          minimizedFolders={minimizedFolders}
           onSetActiveState={this.handleSetActiveState}
           onAddState={this.handleAddState}
           onEditStateName={this.handleEditStateName}
           onRemoveState={this.handleRemoveState}
+          onToggleFolder={this.handleToggleFolder}
         />,
         this.overlayTarget
       );

@@ -4,7 +4,32 @@ import styled from "styled-components";
 import Icon from "@fortawesome/react-fontawesome";
 import faTrashAlt from "@fortawesome/fontawesome-free-regular/faTrashAlt";
 import faEdit from "@fortawesome/fontawesome-free-regular/faEdit";
+import faPlusSquare from "@fortawesome/fontawesome-free-regular/faPlusSquare";
+import faMinusSquare from "@fortawesome/fontawesome-free-regular/faMinusSquare";
 import AddStateForm from "./AddStateForm";
+
+const groupStatesByFolder = states =>
+  states
+    .filter(state => state.name.indexOf("/") > -1)
+    .reduce((folders, state) => {
+      const folderName = state.name.split("/")[0];
+      const displayName = state.name.split("/")[1];
+      const existingFolder = folders.find(folder => folder.name === folderName);
+
+      if (existingFolder) {
+        existingFolder.states.push({ ...state, displayName });
+      } else {
+        folders.push({
+          name: folderName,
+          states: [{ ...state, displayName }]
+        });
+      }
+
+      return folders;
+    }, []);
+
+const getStatesOutsideFolders = states =>
+  states.filter(state => state.name.indexOf("/") === -1);
 
 const Container = styled.div`
   position: fixed;
@@ -67,6 +92,17 @@ const Action = styled.div`
   }
 `;
 
+const FolderName = styled.div`
+  padding-left: 8px;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const FolderStates = styled.div`
+  padding-left: 20px;
+`;
+
 const GhostedButton = styled.div`
   display: block;
   text-align: center;
@@ -83,6 +119,7 @@ const GhostedButton = styled.div`
 class ReactDvrUi extends React.Component {
   static propTypes = {
     isShowing: PropTypes.bool.isRequired,
+    minimizedFolders: PropTypes.arrayOf(PropTypes.string).isRequired,
     states: PropTypes.arrayOf(
       PropTypes.shape({
         name: PropTypes.string.isRequired,
@@ -93,6 +130,7 @@ class ReactDvrUi extends React.Component {
     onEditStateName: PropTypes.func.isRequired,
     onRemoveState: PropTypes.func.isRequired,
     onSetActiveState: PropTypes.func.isRequired,
+    onToggleFolder: PropTypes.func.isRequired,
     activeState: PropTypes.string
   };
 
@@ -128,12 +166,12 @@ class ReactDvrUi extends React.Component {
 
   handleEditName = ({ name, previousName, onError }) => {
     const { states, onEditStateName } = this.props;
-    
+
     if (states.some(s => s.name === name)) {
       onError({ message: "Name is already used" });
       return;
     }
-    
+
     onEditStateName({ name, previousName });
     this.setState({ editingState: null });
   };
@@ -143,15 +181,76 @@ class ReactDvrUi extends React.Component {
     this.setState({ isAdding: false });
   };
 
+  renderState = ({ name, displayName }) => {
+    const { onRemoveState, activeState } = this.props;
+    const { editingState } = this.state;
+
+    if (editingState === name) {
+      return (
+        <AddStateForm
+          key={name}
+          initialName={name}
+          onCancel={this.handleCancelEdit}
+          onSubmit={arg => {
+            this.handleEditName({ ...arg, previousName: name });
+          }}
+        />
+      );
+    }
+
+    return (
+      <StateRow key={name} className="rdvr-state-row">
+        <StateLabel>
+          <input
+            type="radio"
+            checked={activeState === name}
+            onChange={() => {
+              this.setActive(name);
+            }}
+          />{" "}
+          {displayName || name}{" "}
+        </StateLabel>
+        <Actions>
+          <Action
+            onClick={() => {
+              this.handleClickEdit(name);
+            }}
+          >
+            <Icon icon={faEdit} />
+          </Action>
+          <Action
+            onClick={() => {
+              onRemoveState(name);
+            }}
+          >
+            <Icon icon={faTrashAlt} />
+          </Action>
+        </Actions>
+      </StateRow>
+    );
+  };
+
+  renderFolder = ({ name, states }) => {
+    const { minimizedFolders, onToggleFolder } = this.props;
+    const isMinimized = minimizedFolders.includes(name);
+
+    return (
+      <React.Fragment key={name}>
+        <FolderName onClick={() => onToggleFolder(name)}>
+          <Icon icon={isMinimized ? faPlusSquare : faMinusSquare} />&nbsp;&nbsp;{name}
+        </FolderName>
+        {!isMinimized && (
+          <FolderStates>{states.map(this.renderState)}</FolderStates>
+        )}
+      </React.Fragment>
+    );
+  };
+
   render() {
-    const {
-      isShowing,
-      activeState,
-      states,
-      onSetActiveState,
-      onRemoveState
-    } = this.props;
-    const { isAdding, editingState } = this.state;
+    const { isShowing, activeState, states, onSetActiveState } = this.props;
+    const { isAdding } = this.state;
+    const folders = groupStatesByFolder(states);
+    const statesOutsideFolders = getStatesOutsideFolders(states);
 
     if (!isShowing) {
       return <noscript />;
@@ -170,51 +269,11 @@ class ReactDvrUi extends React.Component {
                   onSetActiveState(null);
                 }}
               />{" "}
-              Don't use saved state
+              No state applied
             </StateLabel>
           </StateRow>
-          {states.map(
-            ({ name }) =>
-              editingState === name ? (
-                <AddStateForm
-                  key={name}
-                  initialName={name}
-                  onCancel={this.handleCancelEdit}
-                  onSubmit={arg => {
-                    this.handleEditName({ ...arg, previousName: name });
-                  }}
-                />
-              ) : (
-                <StateRow key={name} className="rdvr-state-row">
-                  <StateLabel>
-                    <input
-                      type="radio"
-                      checked={activeState === name}
-                      onChange={() => {
-                        this.setActive(name);
-                      }}
-                    />{" "}
-                    {name}{" "}
-                  </StateLabel>
-                  <Actions>
-                    <Action
-                      onClick={() => {
-                        this.handleClickEdit(name);
-                      }}
-                    >
-                      <Icon icon={faEdit} />
-                    </Action>
-                    <Action
-                      onClick={() => {
-                        onRemoveState(name);
-                      }}
-                    >
-                      <Icon icon={faTrashAlt} />
-                    </Action>
-                  </Actions>
-                </StateRow>
-              )
-          )}
+          {folders.map(this.renderFolder)}
+          {statesOutsideFolders.map(this.renderState)}
         </StatesContainer>
         {isAdding ? (
           <AddStateForm

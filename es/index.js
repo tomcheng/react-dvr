@@ -19,7 +19,8 @@ var defaultOptions = {
 var defaultState = {
   activeState: null,
   states: [],
-  showUI: true
+  showUI: true,
+  minimizedFolders: []
 };
 
 var reactDvr = function reactDvr(options) {
@@ -81,13 +82,23 @@ var reactDvr = function reactDvr(options) {
           });
         }, _this.handleSetActiveState = function (name) {
           _this.setLocalStorageState({ activeState: name });
+        }, _this.handleToggleFolder = function (name) {
+          _this.setLocalStorageState(function (state) {
+            var isMinimized = state.minimizedFolders.includes(name);
+
+            return _extends({}, state, {
+              minimizedFolders: isMinimized ? state.minimizedFolders.filter(function (n) {
+                return n !== name;
+              }) : state.minimizedFolders.concat(name)
+            });
+          });
         }, _this.getLocalStorageState = function () {
           var json = localStorage.getItem(_this.options.localStorageKey);
           var localStorageState = json ? JSON.parse(json) : {};
           return _extends({}, defaultState, localStorageState);
         }, _this.setLocalStorageState = function (updates) {
           var json = localStorage.getItem(_this.options.localStorageKey);
-          var currentState = json ? JSON.parse(json) : {};
+          var currentState = _extends({}, defaultState, json ? JSON.parse(json) : {});
           var newState = typeof updates === "function" ? updates(currentState) : _extends({}, currentState, updates);
 
           localStorage.setItem(_this.options.localStorageKey, JSON.stringify(newState));
@@ -101,7 +112,8 @@ var reactDvr = function reactDvr(options) {
           var _this$getLocalStorage = _this.getLocalStorageState(),
               showUI = _this$getLocalStorage.showUI,
               states = _this$getLocalStorage.states,
-              activeState = _this$getLocalStorage.activeState;
+              activeState = _this$getLocalStorage.activeState,
+              minimizedFolders = _this$getLocalStorage.minimizedFolders;
 
           if (!_this.overlayTarget) {
             _this.overlayTarget = document.createElement("div");
@@ -112,10 +124,12 @@ var reactDvr = function reactDvr(options) {
             isShowing: showUI,
             activeState: activeState,
             states: states,
+            minimizedFolders: minimizedFolders,
             onSetActiveState: _this.handleSetActiveState,
             onAddState: _this.handleAddState,
             onEditStateName: _this.handleEditStateName,
-            onRemoveState: _this.handleRemoveState
+            onRemoveState: _this.handleRemoveState,
+            onToggleFolder: _this.handleToggleFolder
           }), _this.overlayTarget);
         }, _temp), _possibleConstructorReturn(_this, _ret);
       }
