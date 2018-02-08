@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import reactDvr from "../src/index";
+import reactDvr from "../../src/index";
 
-const List = reactDvr()(({ items }) => items.map((item, index) => <div key={index}>{item}</div>));
+const List = reactDvr({ localStorageKey: "__react-dvr-demo__" })(({ items }) =>
+  items.map((item, index) => <div key={index}>{item}</div>)
+);
 
 class App extends React.Component {
   state = {
@@ -19,7 +21,7 @@ class App extends React.Component {
     this.setState({ items: items.concat(text), text: "" });
   };
 
-  render () {
+  render() {
     const { items, text } = this.state;
 
     return (
@@ -32,4 +34,4 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("demo"));

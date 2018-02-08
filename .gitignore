@@ -1,7 +1,8 @@
 .DS_Store
 *.log
 .idea
-lib
-es
-node_modules
-example/bundle.js
+/coverage
+/demo/dist
+/lib
+/node_modules
+/umd
