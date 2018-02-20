@@ -7,6 +7,7 @@ import faEdit from "@fortawesome/fontawesome-free-regular/faEdit";
 import faPlusSquare from "@fortawesome/fontawesome-free-regular/faPlusSquare";
 import faMinusSquare from "@fortawesome/fontawesome-free-regular/faMinusSquare";
 import AddStateForm from "./AddStateForm";
+import AnimateHeight from "react-animate-height-auto";
 
 const groupStatesByFolder = states =>
   states
@@ -44,14 +45,14 @@ const Container = styled.div`
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 22px;
   -webkit-font-smoothing: antialiased;
 `;
 
 const Title = styled.div`
   font-weight: bold;
-  font-size: 16px;
+  font-size: 15px;
   margin-bottom: 5px;
 `;
 
@@ -63,6 +64,7 @@ const StateRow = styled.div`
   display: flex;
   padding: 0 5px;
   justify-content: space-between;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -94,6 +96,8 @@ const Action = styled.div`
 
 const FolderName = styled.div`
   padding-left: 8px;
+  cursor: pointer;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -103,17 +107,10 @@ const FolderStates = styled.div`
   padding-left: 20px;
 `;
 
-const GhostedButton = styled.div`
+const GhostedButton = styled.button`
   display: block;
-  text-align: center;
-  border: 1px dashed #fff;
-  border-radius: 4px;
+  width: 100%;
   cursor: ${props => (props.disabled ? "default" : "pointer")};
-  opacity: ${props => (props.disabled ? 0.2 : 0.6)};
-
-  &:hover {
-    opacity: ${props => (props.disabled ? 0.2 : 1)};
-  }
 `;
 
 class ReactDvrUi extends React.Component {
@@ -239,9 +236,9 @@ class ReactDvrUi extends React.Component {
         <FolderName onClick={() => onToggleFolder(name)}>
           <Icon icon={isMinimized ? faPlusSquare : faMinusSquare} />&nbsp;&nbsp;{name}
         </FolderName>
-        {!isMinimized && (
+        <AnimateHeight isExpanded={!isMinimized}>
           <FolderStates>{states.map(this.renderState)}</FolderStates>
-        )}
+        </AnimateHeight>
       </React.Fragment>
     );
   };

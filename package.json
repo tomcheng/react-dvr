@@ -25,7 +25,8 @@
     "@fortawesome/fontawesome-free-regular": "5.0.6",
     "@fortawesome/react-fontawesome": "0.0.17",
     "lodash": "4.17.5",
-    "prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "react-animate-height-auto": "0.0.2"
   },
   "peerDependencies": {
     "react": ">= 15.0.0 <17.0.0",
