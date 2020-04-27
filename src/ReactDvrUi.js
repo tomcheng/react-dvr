@@ -1,11 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import Icon from "@fortawesome/react-fontawesome";
-import faTrashAlt from "@fortawesome/fontawesome-free-regular/faTrashAlt";
-import faEdit from "@fortawesome/fontawesome-free-regular/faEdit";
-import faPlusSquare from "@fortawesome/fontawesome-free-regular/faPlusSquare";
-import faMinusSquare from "@fortawesome/fontawesome-free-regular/faMinusSquare";
+import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt, faEdit, faPlusSquare, faMinusSquare } from "@fortawesome/free-regular-svg-icons";
 import AddStateForm from "./AddStateForm";
 import AnimateHeight from "react-animate-height-auto";
 
